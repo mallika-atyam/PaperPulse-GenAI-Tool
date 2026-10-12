@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PaperPulse — GenAI-Powered Requirements-to-Test Automation for SDLC Productivity</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="nav-container">
+      <div class="brand">
+        <div class="brand-logo">⚡</div>
+        <div class="brand-text">
+          <h1>PaperPulse</h1>
+          <p>SDLC Productivity Copilot</p>
+        </div>
+      </div>
+      <div class="nav-controls">
+        <div class="track-badge">
+          <span>🏆</span>
+          <span>BUILD: SDLC Productivity</span>
+        </div>
+        <div id="auth-badge" class="auth-badge">
+          <span>Authenticating...</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div class="tabs-nav">
+    <button class="tab-btn active" data-tab="tab-dashboard">📊 Coverage Dashboard</button>
+    <button class="tab-btn" data-tab="tab-upload">📄 Document Ingestion</button>
+    <button class="tab-btn" data-tab="tab-requirements">📝 Requirements Review</button>
+    <button class="tab-btn" data-tab="tab-testcases">🧪 Test Case Matrix</button>
+    <button class="tab-btn" data-tab="tab-traceability">🔗 Traceability Matrix</button>
+    <button class="tab-btn" data-tab="tab-exports">💾 Export & Benchmark</button>
+  </div>
+
+  <!-- Main Workspace -->
+  <main>
+
+    <!-- TAB 1: DASHBOARD & COVERAGE -->
+    <section id="tab-dashboard" class="tab-content active">
+      <div class="hero-banner">
+        <div class="hero-text">
+          <h2>PaperPulse: Requirements-to-Test Automation</h2>
+          <p>From software requirements to validated test cases — faster, smarter, and with human oversight. Powered by Google Gemini, PyMuPDF, OCR, and strict Pydantic validation.</p>
+        </div>
+        <div style="display:flex; gap:0.75rem; z-index:2;">
+          <button class="btn btn-secondary" onclick="document.querySelector('[data-tab=\'tab-upload\']').click()">Upload SRS</button>
+          <button class="btn btn-primary" onclick="generateAllTests()">Generate Test Suite</button>
+        </div>
+      </div>
+
+      <!-- KPI Scorecards -->
+      <div class="grid-cards">
+        <div class="card">
+          <div class="card-title">Requirement Coverage</div>
+          <div id="metric-coverage" class="card-value" style="color:var(--primary);">--%</div>
+          <div class="card-subtext">Approved reqs with approved tests</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Approved Requirements</div>
+          <div id="metric-reqs" class="card-value">0 / 0</div>
+          <div class="card-subtext">Human-verified specifications</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Approved Test Cases</div>
+          <div id="metric-tests" class="card-value">0 / 0</div>
+          <div class="card-subtext">Validated & signed-off scenarios</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Human Acceptance Rate</div>
+          <div id="metric-acceptance" class="card-value" style="color:var(--success);">--%</div>
+          <div class="card-subtext">Test cases accepted without rejection</div>
+        </div>
+      </div>
+
+      <!-- Quick Action Cards -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.25rem;">
+        <div class="card">
+          <h3 style="font-size:1.05rem; font-weight:700; margin-bottom:0.75rem;">1-Click Demo & Hackathon Walkthrough</h3>
+          <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;">
+            Click below to load an enterprise e-commerce checkout and payment specification document, run OCR/Gemini extraction, generate test cases across all 5 test categories, and view the live traceability matrix.
+          </p>
+          <button id="btn-load-sample" class="btn btn-primary" style="width:100%;">⚡ Load Demo Requirements & Run Pipeline</button>
+        </div>
+        <div class="card">
+          <h3 style="font-size:1.05rem; font-weight:700; margin-bottom:0.75rem;">Export Test Artifacts</h3>
+          <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;">
+            Generate enterprise-ready CSV and formatted Excel (.xlsx) workbooks containing test case IDs, linked requirement IDs, preconditions, test data, and execution steps.
+          </p>
+          <div style="display:flex; gap:0.75rem;">
+            <button class="btn btn-secondary" onclick="downloadCSV()" style="flex:1;">Download CSV</button>
+            <button class="btn btn-success" onclick="downloadExcel()" style="flex:1;">Download Excel (.xlsx)</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: DOCUMENT INGESTION -->
+    <section id="tab-upload" class="tab-content">
+      <div class="card" style="margin-bottom:1.5rem;">
+        <h3 style="font-size:1.15rem; font-weight:700; margin-bottom:0.5rem;">Software Requirements Document Ingestion</h3>
+        <p style="font-size:0.88rem; color:var(--text-secondary);">
+          Upload Software Requirement Specifications (SRS), Product Requirement Documents (PRD), or Business Requirement Documents (BRD) in PDF format.
+          PyMuPDF parses digital layers; scanned pages automatically trigger Tesseract OCR.
+        </p>
+      </div>
+
+      <div id="dropzone" class="dropzone-container">
+        <input type="file" id="file-input" style="display:none;" accept=".pdf,.txt">
+        <div class="dropzone-icon">📄</div>
+        <h3>Drag & drop your requirements document here, or click to browse</h3>
+        <p>Supports text-based and scanned PDFs up to 25 MB with Tesseract OCR fallback</p>
+      </div>
+
+      <div class="table-container">
+        <div class="table-header-bar">
+          <h3>Uploaded Requirements Documents</h3>
+          <button class="btn btn-secondary btn-sm" onclick="loadDocumentsList()">Refresh List</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Document Name</th>
+              <th>Pages / OCR</th>
+              <th>Extracted Size</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="documents-tbody">
+            <tr><td colspan="6" style="text-align:center; padding:2rem; color:var(--text-muted);">Loading documents...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 3: REQUIREMENTS REVIEW -->
+    <section id="tab-requirements" class="tab-content">
+      <div class="table-container">
+        <div class="table-header-bar">
+          <div>
+            <h3>Extracted Software Requirements</h3>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Classified into Functional, Non-Functional, Security, Performance, Usability, Business Rules</span>
+          </div>
+          <div class="filter-group">
+            <button class="btn btn-primary btn-sm" onclick="generateAllTests()">Generate Complete Test Suite</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Req ID</th>
+              <th>Category</th>
+              <th>Requirement Title & Description</th>
+              <th>Acceptance Criteria</th>
+              <th>Review Status</th>
+              <th>Human Review Actions</th>
+            </tr>
+          </thead>
+          <tbody id="requirements-tbody">
+            <tr><td colspan="6" style="text-align:center; padding:2rem; color:var(--text-muted);">No requirements extracted yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 4: TEST CASE MATRIX -->
+    <section id="tab-testcases" class="tab-content">
+      <div class="table-container">
+        <div class="table-header-bar">
+          <div>
+            <h3>Generated Software Test Cases (Pydantic Validated)</h3>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Covers Positive, Negative, Boundary, Edge Case, and Functional Integration</span>
+          </div>
+          <div class="filter-group">
+            <button class="btn btn-secondary btn-sm" onclick="downloadCSV()">Export CSV</button>
+            <button class="btn btn-success btn-sm" onclick="downloadExcel()">Export Excel</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>TC ID</th>
+              <th>Linked REQ</th>
+              <th>Category</th>
+              <th>Test Scenario Title & Objective</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="testcases-tbody">
+            <tr><td colspan="7" style="text-align:center; padding:2rem; color:var(--text-muted);">No test cases generated yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 5: TRACEABILITY MATRIX -->
+    <section id="tab-traceability" class="tab-content">
+      <div class="table-container">
+        <div class="table-header-bar">
+          <div>
+            <h3>Requirements-to-Test Traceability Matrix</h3>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Bidirectional mapping ensuring 100% auditability from specification to verification</span>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="refreshDashboardMetrics()">Refresh Matrix</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Requirement ID</th>
+              <th>Requirement Title</th>
+              <th>Category</th>
+              <th>Coverage State</th>
+              <th>Linked Test Scenarios</th>
+            </tr>
+          </thead>
+          <tbody id="traceability-tbody">
+            <tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--text-muted);">Select a document to view traceability mapping.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 6: EXPORT & BENCHMARKS -->
+    <section id="tab-exports" class="tab-content">
+      <div class="grid-cards" style="grid-template-columns:1fr 1fr;">
+        <div class="card">
+          <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:0.75rem;">Download Approved Test Suites</h3>
+          <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1.25rem;">
+            Export test cases with full traceability links, preconditions, test data, and execution steps.
+          </p>
+          <div style="display:flex; flex-direction:column; gap:0.75rem;">
+            <button class="btn btn-primary" onclick="downloadExcel()">📊 Download Formatted Excel Workbook (.xlsx)</button>
+            <button class="btn btn-secondary" onclick="downloadCSV()">📄 Download CSV Traceability Suite</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:0.75rem;">Empirical Benchmark & Evaluation</h3>
+          <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+            Calculate precision, recall, and F1 score against a ground-truth sample of expected requirements.
+          </p>
+          <div class="form-group">
+            <label>Ground Truth Items (One per line)</label>
+            <textarea id="benchmark-gt" class="form-control" placeholder="User authentication with email and password&#10;Password length validation at least 8 characters&#10;Account lockout on 5 failed attempts"></textarea>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="runGroundTruthBenchmark()">Run Benchmark Metric</button>
+          <div id="benchmark-results" style="margin-top:0.75rem; font-size:0.85rem;"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: EDIT REQUIREMENT -->
+  <div id="req-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Human-in-the-Loop Review: <span id="modal-req-id" style="color:var(--primary);">REQ-001</span></h3>
+        <button class="modal-close" onclick="closeRequirementModal()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label>Requirement Title</label>
+        <input type="text" id="edit-req-title" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>Requirement Description</label>
+        <textarea id="edit-req-desc" class="form-control" style="min-height:100px;"></textarea>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+        <div class="form-group">
+          <label>Category</label>
+          <select id="edit-req-category" class="form-control">
+            <option value="functional">Functional</option>
+            <option value="non_functional">Non-Functional</option>
+            <option value="security">Security</option>
+            <option value="performance">Performance</option>
+            <option value="usability">Usability</option>
+            <option value="business_rule">Business Rule</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Review Status</label>
+          <select id="edit-req-status" class="form-control">
+            <option value="Pending Review">Pending Review</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Needs Revision">Needs Revision</option>
+          </select>
+        </div>
+      </div>
+      <!-- Side-by-side comparison -->
+      <div style="background:var(--bg-primary); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:0.85rem; margin-bottom:1rem;">
+        <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.25rem;">Original Document Text Snippet:</div>
+        <div id="edit-req-original" style="font-size:0.82rem; color:var(--text-secondary); font-style:italic;"></div>
+        <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-top:0.6rem; margin-bottom:0.25rem;">AI Inferred Assumptions:</div>
+        <div id="edit-req-assumptions" style="font-size:0.82rem; color:#a5b4fc;"></div>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+        <button class="btn btn-secondary" onclick="closeRequirementModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveRequirementEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: EDIT TEST CASE -->
+  <div id="tc-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Edit Test Scenario: <span id="modal-tc-id" style="color:var(--primary);">TC-001</span></h3>
+        <button class="modal-close" onclick="closeTestCaseModal()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label>Test Title</label>
+        <input type="text" id="edit-tc-title" class="form-control">
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem;">
+        <div class="form-group">
+          <label>Category</label>
+          <select id="edit-tc-category" class="form-control">
+            <option value="positive">Positive</option>
+            <option value="negative">Negative</option>
+            <option value="boundary">Boundary</option>
+            <option value="edge_case">Edge Case</option>
+            <option value="integration">Integration</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Priority</label>
+          <select id="edit-tc-priority" class="form-control">
+            <option value="Critical">Critical</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Review Status</label>
+          <select id="edit-tc-status" class="form-control">
+            <option value="Pending Review">Pending Review</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Execution Steps (One per line)</label>
+        <textarea id="edit-tc-steps" class="form-control" style="min-height:110px;"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Expected Result & Assertions</label>
+        <textarea id="edit-tc-expected" class="form-control" style="min-height:80px;"></textarea>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+        <button class="btn btn-secondary" onclick="closeTestCaseModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveTestCaseEdit()">Save Test Scenario</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPINNER OVERLAY -->
+  <div id="spinner-overlay" class="spinner-container">
+    <div class="spinner"></div>
+    <div id="spinner-text" style="font-weight:600; font-size:1.05rem;">Processing with Google Gemini...</div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>PaperPulse — GenAI-Powered SDLC Productivity Platform | Hackathon Track: BUILD</div>
+    <div style="margin-top:0.25rem; font-size:0.75rem; color:var(--text-muted);">
+      Reliability, Traceability, Usability, and Human Oversight in Software Testing Preparation.
+    </div>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
